@@ -1,0 +1,54 @@
+---
+- name: dat ip cho loobpack
+  hosts: R
+  tasks:
+    - name: Set loopback IPv4 address
+      ios_l3_interface:
+        name: loopback 0
+        ipv4: 10.0.0.1/24
+
+    - name: Set Ethernet0/1 IPv4 address
+      ios_l3_interface:
+        name: Ethernet0/1
+        ipv4: 172.16.1.1/24
+    - name: Set Ethernet0/2 IPv4 address
+      ios_l3_interface:
+        name: Ethernet0/2
+        ipv4: 172.16.2.1/24
+
+    - name: Show ip
+      ios_command:
+        commands:
+          - show ip int brief
+      register: show_ip
+
+    - name: set OSPF
+      ios_config:
+        parents:
+          - router ospf 1
+        lines:
+          - router-id 1.1.1.1
+
+    - name: set ip OSPF e0/1
+      ios_config:
+        parents:
+          - int e0/1
+        lines:
+          - no shut
+          - ip ospf 1 area 0
+    - name: set ip OSPF e0/2
+      ios_config:
+        parents:
+          - int e0/2
+        lines:
+          - no shut
+          - ip ospf 1 area 0
+    - name: set ip OSPF lo0
+      ios_config:
+        parents:
+          - int lo0
+        lines:
+          - ip ospf 1 area 0
+
+    - debug: var=show_ip.stdout_lines
+
