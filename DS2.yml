@@ -1,0 +1,47 @@
+---
+- name: DS
+  hosts: DS2
+  gather_facts: no
+
+  tasks:
+    - name: HSRP 10
+      ios_config:
+        parents:
+          - int vlan 10
+        lines:
+          - ip address 10.1.10.253 255.255.255.0
+          - standby 10 ip 10.1.10.254
+          - standby 10 priority 100
+          - standby 10 preempt
+          - ip ospf 1 area 0
+          - no shutdown
+
+    - name: HSRP 20
+      ios_config:                                                               
+        parents:                                                                
+          - int vlan 20                                                         
+        lines:
+          - ip address 10.1.20.253 255.255.255.0                                
+          - standby 20 ip 10.1.20.254                                           
+          - standby 20 priority 150
+          - standby 20 preempt
+          - ip ospf 1 area 0
+          - no shutdown
+
+    - name: OSPF                                                                
+      ios_config:
+        parents:
+          - router ospf 1
+        lines:
+          - router-id 3.3.3.3
+
+    - name: Set interface e1/0
+      ios_config:
+        parents:
+          - int e1/0
+        lines:
+          - no sw
+          - no sh
+          - ip ospf 1 area 0
+          - ip address 172.16.2.2 255.255.255.0
+
